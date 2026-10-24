@@ -643,6 +643,8 @@ $script:translations = @{
     'Потоки (параллельно)' = 'Worker threads'
     'Приоритет процессора' = 'CPU priority'
     'Приоритет диска' = 'Disk I/O priority'
+    '{0} из {1}' = '{0} of {1}'
+    'Диск {0:N0}%' = 'Disk {0:N0}%'
     'Лимит нагрузки' = 'Workload limit'
     'Лимит — пауза после каждой порции: при 50% поток отдыхает столько же, сколько работал. Работает вместе с приоритетами.' = 'The limit adds a pause after each batch. At 50%, workers rest about as long as they work. Combined with priority settings.'
     'Загрузка системы:' = 'System usage:'
@@ -856,7 +858,7 @@ $form.Font = $fBase
 $form.AutoScroll = $true
 
 $null = Add-Label $form 'Zipper' 18 8 200 36 $cText $fTitle
-$null = Add-Label $form 'Сжатие игр и программ без потери данных (Compact OS: LZX / XPRESS). Файлы остаются рабочими, распаковывать не нужно.' 20 46 680 18 $cMuted
+$null = Add-Label $form 'Сжатие игр и программ без потери данных (Compact OS: LZX / XPRESS). Файлы остаются рабочими, распаковывать не нужно.' 20 46 820 18 $cMuted
 $null = Add-Label $form 'Язык' 662 17 52 20 $cMuted $fCap
 $cmbLanguage = Add-Combo $form @('Русский', 'English') 716 12 128 28 0
 
@@ -1062,7 +1064,7 @@ function Update-Load {
     $engine.CpuPriority = $cmbCpu.SelectedIndex
     $engine.IoPriority = $cmbIo.SelectedIndex
     $engine.LoadPercent = $tbLoad.Value * 5
-    $lblThreads.Text = '{0} из {1}' -f $tbThreads.Value, $cores
+    $lblThreads.Text = (T '{0} из {1}') -f $tbThreads.Value, $cores
     $pct = $tbLoad.Value * 5
     if ($pct -ge 100) { $lblLoad.Text = T '100% — без пауз' } else { $lblLoad.Text = (T '{0}% — с паузами') -f $pct }
 }
@@ -1221,7 +1223,7 @@ function Update-UI {
             $cpu = [Math]::Min(100.0, [Math]::Max(0.0, [double]$script:pcCpu.NextValue()))
             $dsk = [Math]::Min(100.0, [Math]::Max(0.0, 100.0 - [double]$script:pcDisk.NextValue()))
             $lblCpuTxt.Text = 'CPU {0:N0}%' -f $cpu
-            $lblDskTxt.Text = 'Диск {0:N0}%' -f $dsk
+            $lblDskTxt.Text = (T 'Диск {0:N0}%') -f $dsk
             $cc = $cGreen; if ($cpu -ge 85) { $cc = $cRed } elseif ($cpu -ge 60) { $cc = $cYellow }
             $dc = $cGreen; if ($dsk -ge 85) { $dc = $cRed } elseif ($dsk -ge 60) { $dc = $cYellow }
             Set-Bar $barCpu ($cpu / 100.0) $cc
