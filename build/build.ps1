@@ -8,7 +8,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$requiredPs2ExeVersion = [version]'1.0.18'
+$requiredPs2ExeVersionText = '1.0.18'
+$requiredPs2ExeVersion = [version]$requiredPs2ExeVersionText
 
 if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
     throw 'Zipper can only be packaged on Windows.'
@@ -77,10 +78,10 @@ $installedModule = Get-Module -ListAvailable -Name PS2EXE |
     Select-Object -First 1
 
 if (-not $installedModule) {
-    Write-Host "Installing pinned PS2EXE version $requiredPs2ExeVersion from PowerShell Gallery..." -ForegroundColor Cyan
+    Write-Host "Installing pinned PS2EXE version $requiredPs2ExeVersionText from PowerShell Gallery..." -ForegroundColor Cyan
     $installArguments = @{
         Name            = 'PS2EXE'
-        RequiredVersion = $requiredPs2ExeVersion.ToString()
+        RequiredVersion = $requiredPs2ExeVersionText
         Scope           = 'CurrentUser'
         Repository      = 'PSGallery'
         Force           = $true
@@ -90,7 +91,7 @@ if (-not $installedModule) {
     Install-Module @installArguments
 }
 
-Import-Module -Name PS2EXE -RequiredVersion $requiredPs2ExeVersion.ToString() -Force -ErrorAction Stop
+Import-Module -Name PS2EXE -RequiredVersion $requiredPs2ExeVersionText -Force -ErrorAction Stop
 if (-not (Get-Command -Name Invoke-ps2exe -ErrorAction SilentlyContinue)) {
     throw 'PS2EXE was installed, but Invoke-ps2exe could not be found.'
 }

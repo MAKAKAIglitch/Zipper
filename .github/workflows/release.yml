@@ -60,6 +60,7 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             dist/Zipper.exe \
             dist/Zipper.exe.sha256 \
+            --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "Zipper $GITHUB_REF_NAME" \
             --generate-notes
