@@ -33,8 +33,10 @@ jobs:
         shell: powershell
         run: |
           $source = Get-Content -LiteralPath 'Zipper.ps1' -Raw -Encoding UTF8
-          if ($source -notmatch '(?s)\$cs\s*=\s*@''(.*?)''@') {
+          if ($source -match '(?s)\$cs\s*=\s*@''(.*?)''@') {
+            $engineSource = $Matches[1]
+          } else {
             throw 'Could not locate the embedded C# engine.'
           }
-          Add-Type -TypeDefinition $Matches[1] -Language CSharp -ReferencedAssemblies 'System.Windows.Forms', 'System.Drawing', 'System.Core'
+          Add-Type -TypeDefinition $engineSource -Language CSharp -ReferencedAssemblies 'System.Windows.Forms', 'System.Drawing', 'System.Core'
           Write-Host 'Embedded C# engine compiles successfully.'
