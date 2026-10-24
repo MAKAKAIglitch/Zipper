@@ -1,0 +1,40 @@
+name: Validate Zipper source
+
+on:
+  push:
+    paths:
+      - 'Zipper.ps1'
+      - '.github/workflows/validate.yml'
+  pull_request:
+    paths:
+      - 'Zipper.ps1'
+      - '.github/workflows/validate.yml'
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Parse PowerShell source
+        shell: powershell
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD 'Zipper.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.ToString() }
+            exit 1
+          }
+          Write-Host 'PowerShell syntax is valid.'
+
+      - name: Compile embedded C# engine
+        shell: powershell
+        run: |
+          $source = Get-Content -LiteralPath 'Zipper.ps1' -Raw -Encoding UTF8
+          if ($source -notmatch '(?s)\$cs\s*=\s*@''(.*?)''@') {
+            throw 'Could not locate the embedded C# engine.'
+          }
+          Add-Type -TypeDefinition $Matches[1] -Language CSharp -ReferencedAssemblies 'System.Windows.Forms', 'System.Drawing', 'System.Core'
+          Write-Host 'Embedded C# engine compiles successfully.'
