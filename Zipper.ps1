@@ -983,7 +983,49 @@ function Apply-Language([string]$language) {
         $form.Text = "Zipper $($script:Version) — Compact OS"
         Update-Load
         Update-DriveInfo
+        Update-ToolTips
     } finally { $script:languageChanging = $false }
+}
+
+# Context-sensitive help for advanced settings and potentially destructive actions.
+$script:toolTip = New-Object System.Windows.Forms.ToolTip
+$script:toolTip.AutoPopDelay = 12000
+$script:toolTip.InitialDelay = 450
+$script:toolTip.ReshowDelay = 150
+$script:toolTip.ShowAlways = $false
+
+function Update-ToolTips {
+    if ($script:language -eq 'en') {
+        $script:toolTip.SetToolTip($txtPath, 'Choose a local NTFS folder. Avoid the Windows folder and the system-drive root.')
+        $script:toolTip.SetToolTip($cmbAlg, 'LZX usually compresses more but is slower. XPRESS is generally faster.')
+        $script:toolTip.SetToolTip($chkForce, 'Force recompression of files already marked as compressed. Usually not needed.')
+        $script:toolTip.SetToolTip($chkMedia, 'Skip archives, images, and media files that usually cannot shrink much further.')
+        $script:toolTip.SetToolTip($tbThreads, 'Number of concurrent compact.exe workers. More workers can be faster but use more CPU and disk bandwidth.')
+        $script:toolTip.SetToolTip($cmbCpu, 'CPU scheduling priority for compact.exe. Below normal helps keep other apps responsive.')
+        $script:toolTip.SetToolTip($cmbIo, 'I/O priority for compact.exe. Lower priority can reduce interference with other disk activity.')
+        $script:toolTip.SetToolTip($tbLoad, 'Adds idle time between batches. 100% disables artificial throttling.')
+        $script:toolTip.SetToolTip($btnQuiet, 'One worker, lower CPU and I/O priority, and extra pauses.')
+        $script:toolTip.SetToolTip($btnBal, 'A middle-ground thread count with below-normal priority.')
+        $script:toolTip.SetToolTip($btnMax, 'Uses all logical processors and normal priority, without artificial pauses.')
+        $script:toolTip.SetToolTip($btnAnalyze, 'Scans the folder and reports file sizes. It does not change any files.')
+        $script:toolTip.SetToolTip($btnPause, 'Pausing takes effect between batches; the current batch may finish first.')
+        $script:toolTip.SetToolTip($btnStop, 'First press stops after the current batch. Press again to abort immediately.')
+    } else {
+        $script:toolTip.SetToolTip($txtPath, 'Выбери локальную папку на NTFS. Не выбирай папку Windows и корень системного диска.')
+        $script:toolTip.SetToolTip($cmbAlg, 'LZX обычно сжимает сильнее, но медленнее. XPRESS, как правило, работает быстрее.')
+        $script:toolTip.SetToolTip($chkForce, 'Принудительно повторно сжимает уже сжатые файлы. Обычно не требуется.')
+        $script:toolTip.SetToolTip($chkMedia, 'Пропускает архивы, изображения и медиа, которые обычно почти не сжимаются.')
+        $script:toolTip.SetToolTip($tbThreads, 'Количество параллельных процессов compact.exe. Больше потоков может ускорить работу, но повышает нагрузку на CPU и диск.')
+        $script:toolTip.SetToolTip($cmbCpu, 'Приоритет CPU для compact.exe. Приоритет «Ниже обычного» помогает сохранить отзывчивость других приложений.')
+        $script:toolTip.SetToolTip($cmbIo, 'Приоритет операций ввода-вывода compact.exe. Низкий приоритет уменьшает влияние на другие операции с диском.')
+        $script:toolTip.SetToolTip($tbLoad, 'Добавляет паузы между пакетами. При 100% искусственное ограничение отключено.')
+        $script:toolTip.SetToolTip($btnQuiet, 'Один поток, низкие приоритеты CPU и диска, дополнительные паузы.')
+        $script:toolTip.SetToolTip($btnBal, 'Среднее число потоков и приоритет ниже обычного.')
+        $script:toolTip.SetToolTip($btnMax, 'Все логические процессоры, обычный приоритет и без искусственных пауз.')
+        $script:toolTip.SetToolTip($btnAnalyze, 'Сканирует папку и показывает размеры файлов. Файлы не изменяются.')
+        $script:toolTip.SetToolTip($btnPause, 'Пауза применяется между пакетами; текущий пакет может сначала завершиться.')
+        $script:toolTip.SetToolTip($btnStop, 'Первое нажатие останавливает после текущего пакета. Повторное сразу прерывает работу.')
+    }
 }
 
 # ---------------------------------------------------------------- лог в окне
