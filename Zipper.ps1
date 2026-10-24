@@ -677,7 +677,6 @@ $script:translations = @{
     ' — на HDD лучше 1–2 потока' = ' — 1–2 threads are recommended for HDDs'
     '100% — без пауз' = '100% — no pauses'
     '{0}% — с паузами' = '{0}% — throttled'
-    'Анализ' = 'Analyze'
     'Расжатие' = 'Decompression'
     'Сжатие ' = 'Compression '
     'Анализ завершён.' = 'Analysis complete.'
@@ -686,6 +685,7 @@ $script:translations = @{
     'Остановлено.' = 'Stopped.'
     'Ошибка.' = 'Error.'
     'Файлов: {0:N0}, объём {1}, на диске {2} (уже сэкономлено {3:N0}%)' = 'Files: {0:N0}, logical size {1}, on disk {2} (already saved {3:N0}%)'
+    'В папке файлов: {0:N0} ({1}). К обработке: {2:N0} ({3}).' = 'Files found: {0:N0} ({1}). Eligible to process: {2:N0} ({3}).'
     'Можно сжать: {0:N0} файлов, {1}' = 'Eligible to compress: {0:N0} files, {1}'
     'Нечего делать: подходящих файлов нет (всё уже обработано или файлы слишком мелкие / исключены).' = 'Nothing to do: no eligible files (already processed, too small, or excluded).'
     'Готово за {0}. Занято дополнительно: {1}. OK: {2:N0}, ошибок: {3:N0}' = 'Finished in {0}. Extra disk space used: {1}. OK: {2:N0}, errors: {3:N0}'
@@ -696,12 +696,10 @@ $script:translations = @{
     '   [ПАУЗА]' = '   [PAUSED]'
     'Файлов: {0:N0} / {1:N0}    Данные: {2} / {3}    Скорость: {4}/с    Осталось: {5}{6}' = 'Files: {0:N0} / {1:N0}    Data: {2} / {3}    Speed: {4}/s    Remaining: {5}{6}'
     'OK: {0:N0}    Ошибок: {1:N0}    Освобождено на диске: {2}' = 'OK: {0:N0}    Errors: {1:N0}    Space freed: {2}'
-    'Выбери папку для сжатия' = 'Choose a folder to compress'
     'Идёт работа. Прервать и выйти?' = 'A task is running. Stop it and exit?'
     'Не удалось скомпилировать движок:' = 'Could not compile the engine:'
     'Прервано принудительно.' = 'Force-stopped.'
     'Останавливаю: дожидаюсь завершения текущих файлов… Повторное нажатие прервёт сразу.' = 'Stopping after the current batch… Press Stop again to abort immediately.'
-    'Выбери папку для сжатия' = 'Choose a folder to compress'
 }
 function T([string]$key) {
     if ($script:language -eq 'en' -and $script:translations.ContainsKey($key)) { return [string]$script:translations[$key] }
@@ -936,11 +934,27 @@ $form.Controls.Add($rtb)
 function Localize-Controls($parent) {
     foreach ($ctl in $parent.Controls) {
         if ($ctl -is [System.Windows.Forms.ComboBox]) { continue }
-        if ($ctl.Tag -is [string] -and $script:translations.ContainsKey([string]$ctl.Tag)) {
-            $ctl.Text = T ([string]$ctl.Tag)
-        } elseif ($script:translations.ContainsKey([string]$ctl.Text)) {
-            $ctl.Tag = [string]$ctl.Text
-            $ctl.Text = T ([string]$ctl.Tag)
+        $key = $null
+        if ($script:translations.ContainsKey([string]$ctl.Text)) {
+            $key = [string]$ctl.Text
+        } else {
+            foreach ($candidate in $script:translations.Keys) {
+                if ([string]$script:translations[$candidate] -ceq [string]$ctl.Text) {
+                    $key = [string]$candidate
+                    break
+                }
+            }
+        }
+        if ($key) {
+            if ($null -eq $ctl.Tag) { $ctl.Tag = $key }
+            $ctl.Text = T $key
+        } elseif ($ctl.Tag -is [string] -and $script:translations.ContainsKey([string]$ctl.Tag)) {
+            # Do not overwrite dynamic status or path information with its initial caption.
+            $original = [string]$ctl.Tag
+            $translated = [string]$script:translations[$original]
+            if ($ctl.Text -ceq $original -or $ctl.Text -ceq $translated) {
+                $ctl.Text = T $original
+            }
         }
         if ($ctl.Controls.Count -gt 0) { Localize-Controls $ctl }
     }
@@ -965,7 +979,9 @@ function Apply-Language([string]$language) {
         Set-ComboItems $cmbCpu @('Самый низкий (Idle)', 'Ниже обычного', 'Обычный') @('Lowest (Idle)', 'Below normal', 'Normal')
         Set-ComboItems $cmbIo @('Очень низкий', 'Низкий', 'Обычный') @('Very low', 'Low', 'Normal')
         $cmbLanguage.SelectedIndex = if ($script:language -eq 'en') { 1 } else { 0 }
-        $form.Text = if ($script:language -eq 'en') { "Zipper $($script:Version) — Compact OS" } else { "Zipper $($script:Version) — Compact OS" }
+        $form.Text = "Zipper $($script:Version) — Compact OS"
+        Update-Load
+        Update-DriveInfo
     } finally { $script:languageChanging = $false }
 }
 
@@ -1218,7 +1234,7 @@ function Update-UI {
         $old = $script:lastState
         $script:lastState = $st
         if ($st -eq 2 -and $old -ne 2) {
-            Add-Log ('В папке файлов: {0:N0} ({1}). К обработке: {2:N0} ({3}).' -f $engine.AllFiles, (Fmt-Bytes $engine.AllBytes), $engine.SelFiles, (Fmt-Bytes $engine.SelBytes)) $cText
+            Add-Log ((T 'В папке файлов: {0:N0} ({1}). К обработке: {2:N0} ({3}).') -f $engine.AllFiles, (Fmt-Bytes $engine.AllBytes), $engine.SelFiles, (Fmt-Bytes $engine.SelBytes)) $cText
         }
         if ($st -ge 3) {
             Set-Running $false
