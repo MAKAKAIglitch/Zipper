@@ -997,6 +997,10 @@ $script:toolTip.ShowAlways = $false
 function Update-ToolTips {
     if ($script:language -eq 'en') {
         $script:toolTip.SetToolTip($txtPath, 'Choose a local NTFS folder. Avoid the Windows folder and the system-drive root.')
+        $script:toolTip.SetToolTip($btnBrowse, 'Browse for a target folder.')
+        $script:toolTip.SetToolTip($btnCompress, 'Start lossless compression with the selected algorithm and resource settings.')
+        $script:toolTip.SetToolTip($btnDecompress, 'Remove Compact compression from eligible files. This does not extract archives.')
+        $script:toolTip.SetToolTip($btnLogOpen, 'Open the folder containing Zipper log and settings files.')
         $script:toolTip.SetToolTip($cmbAlg, 'LZX usually compresses more but is slower. XPRESS is generally faster.')
         $script:toolTip.SetToolTip($chkForce, 'Force recompression of files already marked as compressed. Usually not needed.')
         $script:toolTip.SetToolTip($chkMedia, 'Skip archives, images, and media files that usually cannot shrink much further.')
@@ -1012,6 +1016,10 @@ function Update-ToolTips {
         $script:toolTip.SetToolTip($btnStop, 'First press stops after the current batch. Press again to abort immediately.')
     } else {
         $script:toolTip.SetToolTip($txtPath, 'Выбери локальную папку на NTFS. Не выбирай папку Windows и корень системного диска.')
+        $script:toolTip.SetToolTip($btnBrowse, 'Выбрать папку через Проводник.')
+        $script:toolTip.SetToolTip($btnCompress, 'Начать сжатие без потери данных с выбранным алгоритмом и настройками нагрузки.')
+        $script:toolTip.SetToolTip($btnDecompress, 'Снять Compact-сжатие с подходящих файлов. Архивы эта кнопка не распаковывает.')
+        $script:toolTip.SetToolTip($btnLogOpen, 'Открыть папку с журналом и файлом настроек Zipper.')
         $script:toolTip.SetToolTip($cmbAlg, 'LZX обычно сжимает сильнее, но медленнее. XPRESS, как правило, работает быстрее.')
         $script:toolTip.SetToolTip($chkForce, 'Принудительно повторно сжимает уже сжатые файлы. Обычно не требуется.')
         $script:toolTip.SetToolTip($chkMedia, 'Пропускает архивы, изображения и медиа, которые обычно почти не сжимаются.')
