@@ -20,9 +20,10 @@ jobs:
       - name: Parse PowerShell source
         shell: powershell
         run: |
+          $source = Get-Content -LiteralPath 'Zipper.ps1' -Raw -Encoding UTF8
           $tokens = $null
           $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD 'Zipper.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
+          [System.Management.Automation.Language.Parser]::ParseInput($source, [ref]$tokens, [ref]$errors) | Out-Null
           if ($errors.Count -gt 0) {
             $errors | ForEach-Object { Write-Error $_.ToString() }
             exit 1
