@@ -1,0 +1,65 @@
+name: Build and release Zipper
+
+on:
+  push:
+    tags:
+      - 'V*'
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Windows executable
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Build Zipper.exe
+        shell: powershell
+        run: |
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $releaseVersion = $env:GITHUB_REF_NAME -replace '^[vV]', ''
+            & .\build\build.ps1 -Version $releaseVersion
+          }
+          else {
+            & .\build\build.ps1
+          }
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: zipper-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/Zipper.exe
+            dist/Zipper.exe.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: zipper-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/Zipper.exe \
+            dist/Zipper.exe.sha256 \
+            --verify-tag \
+            --title "Zipper $GITHUB_REF_NAME" \
+            --generate-notes
