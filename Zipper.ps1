@@ -653,7 +653,6 @@ $script:translations = @{
     'ПРОГРЕСС' = 'PROGRESS'
     'Готов к работе.' = 'Ready.'
     'Сжать' = 'Compress'
-    'Расжать' = 'Decompress'
     'Снять сжатие' = 'Decompress'
     'Анализ' = 'Analyze'
     'Пауза' = 'Pause'
