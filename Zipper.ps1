@@ -624,6 +624,90 @@ $script:settingsFile = Join-Path $script:dataDir 'settings.json'
 $script:logFile = Join-Path $script:dataDir 'zipper.log'
 try { [System.IO.Directory]::CreateDirectory($script:dataDir) | Out-Null } catch {}
 
+# ---------------------------------------------------------------- localization
+$script:translations = @{
+    'Zipper — Compact OS' = 'Zipper — Compact OS'
+    'Язык' = 'Language'
+    'Сжатие игр и программ без потери данных (Compact OS: LZX / XPRESS). Файлы остаются рабочими, распаковывать не нужно.' = 'Compress games and apps without data loss (Compact OS: LZX / XPRESS). Files stay usable without unpacking.'
+    'ПАПКА' = 'TARGET FOLDER'
+    'Обзор…' = 'Browse…'
+    'Выбери папку с игрой или программой (можно перетащить её в окно).' = 'Choose a game or app folder (you can also drag it into this window).'
+    'РЕЖИМ' = 'MODE'
+    'Без потери данных, файлы работают как обычно.' = 'Lossless compression; files work as usual.'
+    'Пересжимать уже сжатые файлы (/f)' = 'Recompress already-compressed files (/f)'
+    'Пропускать архивы и медиа (zip, mp4, jpg …) — они почти не сжимаются' = 'Skip archives and media (zip, mp4, jpg …) — they rarely compress further'
+    'НАГРУЗКА  (можно менять прямо во время работы)' = 'CPU & DISK LOAD  (adjustable while running)'
+    'Тихо' = 'Quiet'
+    'Баланс' = 'Balanced'
+    'Максимум' = 'Maximum'
+    'Потоки (параллельно)' = 'Worker threads'
+    'Приоритет процессора' = 'CPU priority'
+    'Приоритет диска' = 'Disk I/O priority'
+    'Лимит нагрузки' = 'Workload limit'
+    'Лимит — пауза после каждой порции: при 50% поток отдыхает столько же, сколько работал. Работает вместе с приоритетами.' = 'The limit adds a pause after each batch. At 50%, workers rest about as long as they work. Combined with priority settings.'
+    'Загрузка системы:' = 'System usage:'
+    'CPU 0%' = 'CPU 0%'
+    'Диск 0%' = 'Disk 0%'
+    'ПРОГРЕСС' = 'PROGRESS'
+    'Готов к работе.' = 'Ready.'
+    'Сжать' = 'Compress'
+    'Расжать' = 'Decompress'
+    'Снять сжатие' = 'Decompress'
+    'Анализ' = 'Analyze'
+    'Пауза' = 'Pause'
+    'Продолжить' = 'Resume'
+    'Стоп' = 'Stop'
+    'Прервать' = 'Abort'
+    'Лог' = 'Log'
+    'Выбери папку для сжатия' = 'Choose a folder to compress'
+    'Сетевой путь: Compact OS на сетевых папках не работает.' = 'Network path: Compact OS does not work on network folders.'
+    'Сетевые пути не поддерживаются: Compact OS работает только на локальном NTFS.' = 'Network paths are not supported: Compact OS requires a local NTFS drive.'
+    'Сетевые диски не поддерживаются.' = 'Network drives are not supported.'
+    'Не удалось определить диск.' = 'Could not identify the drive.'
+    'Диск {0} отформатирован в {1}. Compact OS работает только на NTFS.' = 'Drive {0} is formatted as {1}. Compact OS requires NTFS.'
+    'Папку Windows сжимать нельзя — система может перестать загружаться.' = 'Do not compress the Windows folder — the system may fail to boot.'
+    'Корень системного диска сжимать нельзя (там Windows). Выбери конкретную папку с игрой или программой.' = 'Do not compress the system-drive root. Choose a specific game or application folder.'
+    'Выбран корень диска {0} — будет сжато вообще всё на нём. Продолжить?' = 'Drive root {0} is selected — everything on it will be compressed. Continue?'
+    'Это системная папка ({0}): там много файлов, которые постоянно используются. Лучше выбрать конкретную подпапку. Всё равно продолжить?' = 'This is a system folder ({0}) with many files in use. A specific subfolder is safer. Continue anyway?'
+    'Сначала выбери папку.' = 'Choose a folder first.'
+    'Такой папки нет.' = 'That folder does not exist.'
+    'Диск {0}: · {1}' = 'Drive {0}: · {1}'
+    ' · свободно ' = ' · free '
+    ' — Compact OS работает только на NTFS!' = ' — Compact OS requires NTFS!'
+    ' — на HDD лучше 1–2 потока' = ' — 1–2 threads are recommended for HDDs'
+    '100% — без пауз' = '100% — no pauses'
+    '{0}% — с паузами' = '{0}% — throttled'
+    'Анализ' = 'Analyze'
+    'Расжатие' = 'Decompression'
+    'Сжатие ' = 'Compression '
+    'Анализ завершён.' = 'Analysis complete.'
+    'Готово.' = 'Done.'
+    'Нечего делать.' = 'Nothing to do.'
+    'Остановлено.' = 'Stopped.'
+    'Ошибка.' = 'Error.'
+    'Файлов: {0:N0}, объём {1}, на диске {2} (уже сэкономлено {3:N0}%)' = 'Files: {0:N0}, logical size {1}, on disk {2} (already saved {3:N0}%)'
+    'Можно сжать: {0:N0} файлов, {1}' = 'Eligible to compress: {0:N0} files, {1}'
+    'Нечего делать: подходящих файлов нет (всё уже обработано или файлы слишком мелкие / исключены).' = 'Nothing to do: no eligible files (already processed, too small, or excluded).'
+    'Готово за {0}. Занято дополнительно: {1}. OK: {2:N0}, ошибок: {3:N0}' = 'Finished in {0}. Extra disk space used: {1}. OK: {2:N0}, errors: {3:N0}'
+    'Готово за {0}. Освобождено: {1} ({2:N1}%). OK: {3:N0}, ошибок: {4:N0}' = 'Finished in {0}. Space freed: {1} ({2:N1}%). OK: {3:N0}, errors: {4:N0}'
+    'Остановлено. Обработано файлов: {0:N0} из {1:N0}.' = 'Stopped. Processed {0:N0} of {1:N0} files.'
+    'Ошибка: ' = 'Error: '
+    'Сканирование… файлов: {0:N0}' = 'Scanning… files: {0:N0}'
+    '   [ПАУЗА]' = '   [PAUSED]'
+    'Файлов: {0:N0} / {1:N0}    Данные: {2} / {3}    Скорость: {4}/с    Осталось: {5}{6}' = 'Files: {0:N0} / {1:N0}    Data: {2} / {3}    Speed: {4}/s    Remaining: {5}{6}'
+    'OK: {0:N0}    Ошибок: {1:N0}    Освобождено на диске: {2}' = 'OK: {0:N0}    Errors: {1:N0}    Space freed: {2}'
+    'Выбери папку для сжатия' = 'Choose a folder to compress'
+    'Идёт работа. Прервать и выйти?' = 'A task is running. Stop it and exit?'
+    'Не удалось скомпилировать движок:' = 'Could not compile the engine:'
+    'Прервано принудительно.' = 'Force-stopped.'
+    'Останавливаю: дожидаюсь завершения текущих файлов… Повторное нажатие прервёт сразу.' = 'Stopping after the current batch… Press Stop again to abort immediately.'
+    'Выбери папку для сжатия' = 'Choose a folder to compress'
+}
+function T([string]$key) {
+    if ($script:language -eq 'en' -and $script:translations.ContainsKey($key)) { return [string]$script:translations[$key] }
+    return $key
+}
+
 function Read-Settings {
     try {
         if (Test-Path -LiteralPath $script:settingsFile) {
@@ -644,7 +728,7 @@ function Write-LogFile([string]$text) {
 function Fmt-Bytes([double]$b) {
     $neg = $b -lt 0
     $b = [Math]::Abs($b)
-    $units = 'Б', 'КБ', 'МБ', 'ГБ', 'ТБ'
+    if ($script:language -eq 'en') { $units = 'B', 'KB', 'MB', 'GB', 'TB' } else { $units = 'Б', 'КБ', 'МБ', 'ГБ', 'ТБ' }
     $i = 0
     while ($b -ge 1024 -and $i -lt 4) { $b = $b / 1024; $i++ }
     if ($i -eq 0) { $s = '{0:N0} {1}' -f $b, $units[$i] } else { $s = '{0:N2} {1}' -f $b, $units[$i] }
@@ -756,6 +840,9 @@ function Set-Bar($bar, [double]$r, $color = $null) {
 $engine = New-Object ZipperEngine
 $cores = [Math]::Max(1, [Environment]::ProcessorCount)
 $settings = Read-Settings
+$script:language = 'ru'
+if ($settings -and [string]$settings.language -eq 'en') { $script:language = 'en' }
+$script:languageChanging = $false
 
 $form = New-Object ZForm
 $form.Text = "Zipper $($script:Version) — Compact OS"
@@ -771,7 +858,9 @@ $form.Font = $fBase
 $form.AutoScroll = $true
 
 $null = Add-Label $form 'Zipper' 18 8 200 36 $cText $fTitle
-$null = Add-Label $form 'Сжатие игр и программ без потери данных (Compact OS: LZX / XPRESS). Файлы остаются рабочими, распаковывать не нужно.' 20 46 820 18 $cMuted
+$null = Add-Label $form 'Сжатие игр и программ без потери данных (Compact OS: LZX / XPRESS). Файлы остаются рабочими, распаковывать не нужно.' 20 46 680 18 $cMuted
+$null = Add-Label $form 'Язык' 662 17 52 20 $cMuted $fCap
+$cmbLanguage = Add-Combo $form @('Русский', 'English') 716 12 128 28 0
 
 # --- Карточка: папка
 $cardPath = Add-Card 16 74 828 84 'ПАПКА'
@@ -829,7 +918,7 @@ $lblStat2 = Add-Label $cardProg '' 14 63 800 18 $cMuted
 # --- Кнопки действий
 $btnCompress = Add-Button $form 'Сжать' 16 582 150 38 $cAccent
 $btnCompress.Font = $fBold
-$btnDecompress = Add-Button $form 'Расжать' 174 582 120 38 $cBtn
+$btnDecompress = Add-Button $form 'Снять сжатие' 174 582 120 38 $cBtn
 $btnAnalyze = Add-Button $form 'Анализ' 302 582 110 38 $cBtn
 $btnPause = Add-Button $form 'Пауза' 560 582 100 38 $cBtn
 $btnStop = Add-Button $form 'Стоп' 668 582 90 38 $cDanger
@@ -842,6 +931,43 @@ $rtb = New-Ctl 'System.Windows.Forms.RichTextBox' 16 630 828 94
 $rtb.BackColor = $cCard; $rtb.ForeColor = $cText; $rtb.BorderStyle = 'None'
 $rtb.ReadOnly = $true; $rtb.Font = $fMono; $rtb.DetectUrls = $false
 $form.Controls.Add($rtb)
+
+# ---------------------------------------------------------------- локализация контролов
+function Localize-Controls($parent) {
+    foreach ($ctl in $parent.Controls) {
+        if ($ctl -is [System.Windows.Forms.ComboBox]) { continue }
+        if ($ctl.Tag -is [string] -and $script:translations.ContainsKey([string]$ctl.Tag)) {
+            $ctl.Text = T ([string]$ctl.Tag)
+        } elseif ($script:translations.ContainsKey([string]$ctl.Text)) {
+            $ctl.Tag = [string]$ctl.Text
+            $ctl.Text = T ([string]$ctl.Tag)
+        }
+        if ($ctl.Controls.Count -gt 0) { Localize-Controls $ctl }
+    }
+}
+function Set-ComboItems($combo, [string[]]$ru, [string[]]$en) {
+    $idx = $combo.SelectedIndex
+    $combo.BeginUpdate()
+    try {
+        $combo.Items.Clear()
+        $items = if ($script:language -eq 'en') { $en } else { $ru }
+        $combo.Items.AddRange([object[]]$items)
+        $combo.SelectedIndex = [Math]::Max(0, [Math]::Min($items.Length - 1, $idx))
+    } finally { $combo.EndUpdate() }
+}
+function Apply-Language([string]$language) {
+    if ($script:languageChanging) { return }
+    $script:languageChanging = $true
+    try {
+        $script:language = if ($language -eq 'en') { 'en' } else { 'ru' }
+        Localize-Controls $form
+        Set-ComboItems $cmbAlg @('XPRESS 4K — быстро, слабое сжатие', 'XPRESS 8K — стандарт', 'XPRESS 16K — сильнее', 'LZX — максимум (рекомендую для игр)') @('XPRESS 4K — fastest, lower compression', 'XPRESS 8K — balanced', 'XPRESS 16K — stronger compression', 'LZX — maximum (recommended for games)')
+        Set-ComboItems $cmbCpu @('Самый низкий (Idle)', 'Ниже обычного', 'Обычный') @('Lowest (Idle)', 'Below normal', 'Normal')
+        Set-ComboItems $cmbIo @('Очень низкий', 'Низкий', 'Обычный') @('Very low', 'Low', 'Normal')
+        $cmbLanguage.SelectedIndex = if ($script:language -eq 'en') { 1 } else { 0 }
+        $form.Text = if ($script:language -eq 'en') { "Zipper $($script:Version) — Compact OS" } else { "Zipper $($script:Version) — Compact OS" }
+    } finally { $script:languageChanging = $false }
+}
 
 # ---------------------------------------------------------------- лог в окне
 function Add-Log([string]$text, $color = $null) {
@@ -886,26 +1012,26 @@ function Get-MediaType([string]$letter) {
 function Update-DriveInfo {
     $p = $txtPath.Text.Trim().Trim('"')
     $lblInfo.ForeColor = $cMuted
-    if ([string]::IsNullOrWhiteSpace($p)) { $lblInfo.Text = 'Выбери папку с игрой или программой (можно перетащить её в окно).'; return }
+    if ([string]::IsNullOrWhiteSpace($p)) { $lblInfo.Text = T 'Выбери папку с игрой или программой (можно перетащить её в окно).'; return }
     try {
         $full = [System.IO.Path]::GetFullPath($p)
         $root = [System.IO.Path]::GetPathRoot($full)
         if ($root.StartsWith('\\')) {
-            $lblInfo.Text = 'Сетевой путь: Compact OS на сетевых папках не работает.'
+            $lblInfo.Text = T 'Сетевой путь: Compact OS на сетевых папках не работает.'
             $lblInfo.ForeColor = $cRed
             return
         }
         $letter = $root.Substring(0, 1)
         $di = New-Object System.IO.DriveInfo($letter)
         $media = Get-MediaType $letter
-        $txt = 'Диск {0}: · {1}' -f $letter.ToUpper(), $di.DriveFormat
+        $txt = (T 'Диск {0}: · {1}') -f $letter.ToUpper(), $di.DriveFormat
         if ($media) { $txt += ' · ' + $media }
-        $txt += ' · свободно ' + (Fmt-Bytes $di.AvailableFreeSpace)
+        $txt += (T ' · свободно ') + (Fmt-Bytes $di.AvailableFreeSpace)
         if ($di.DriveFormat -ne 'NTFS') {
-            $txt += ' — Compact OS работает только на NTFS!'
+            $txt += T ' — Compact OS работает только на NTFS!'
             $lblInfo.ForeColor = $cRed
         } elseif ($media -eq 'HDD') {
-            $txt += ' — на HDD лучше 1–2 потока'
+            $txt += T ' — на HDD лучше 1–2 потока'
             $lblInfo.ForeColor = $cYellow
         }
         $lblInfo.Text = $txt
@@ -922,7 +1048,7 @@ function Update-Load {
     $engine.LoadPercent = $tbLoad.Value * 5
     $lblThreads.Text = '{0} из {1}' -f $tbThreads.Value, $cores
     $pct = $tbLoad.Value * 5
-    if ($pct -ge 100) { $lblLoad.Text = '100% — без пауз' } else { $lblLoad.Text = "$pct% — с паузами" }
+    if ($pct -ge 100) { $lblLoad.Text = T '100% — без пауз' } else { $lblLoad.Text = (T '{0}% — с паузами') -f $pct }
 }
 
 function Set-Preset([string]$name) {
@@ -939,33 +1065,33 @@ function Set-Preset([string]$name) {
 # ---------------------------------------------------------------- проверка выбранной папки
 function Test-Target([string]$p) {
     $r = @{ Ok = $false; Msg = ''; Warn = '' }
-    if ([string]::IsNullOrWhiteSpace($p)) { $r.Msg = 'Сначала выбери папку.'; return $r }
-    if (-not (Test-Path -LiteralPath $p -PathType Container)) { $r.Msg = 'Такой папки нет.'; return $r }
+    if ([string]::IsNullOrWhiteSpace($p)) { $r.Msg = T 'Сначала выбери папку.'; return $r }
+    if (-not (Test-Path -LiteralPath $p -PathType Container)) { $r.Msg = T 'Такой папки нет.'; return $r }
     $full = [System.IO.Path]::GetFullPath($p)
     $root = [System.IO.Path]::GetPathRoot($full)
-    if ($root.StartsWith('\\')) { $r.Msg = 'Сетевые пути не поддерживаются: Compact OS работает только на локальном NTFS.'; return $r }
-    try { $di = New-Object System.IO.DriveInfo($root.Substring(0, 1)) } catch { $r.Msg = 'Не удалось определить диск.'; return $r }
-    if ($di.DriveType -eq 'Network') { $r.Msg = 'Сетевые диски не поддерживаются.'; return $r }
+    if ($root.StartsWith('\\')) { $r.Msg = T 'Сетевые пути не поддерживаются: Compact OS работает только на локальном NTFS.'; return $r }
+    try { $di = New-Object System.IO.DriveInfo($root.Substring(0, 1)) } catch { $r.Msg = T 'Не удалось определить диск.'; return $r }
+    if ($di.DriveType -eq 'Network') { $r.Msg = T 'Сетевые диски не поддерживаются.'; return $r }
     if ($di.DriveFormat -ne 'NTFS') {
-        $r.Msg = 'Диск {0} отформатирован в {1}. Compact OS работает только на NTFS.' -f $root.Substring(0, 2), $di.DriveFormat
+        $r.Msg = (T 'Диск {0} отформатирован в {1}. Compact OS работает только на NTFS.') -f $root.Substring(0, 2), $di.DriveFormat
         return $r
     }
     $t = $full.TrimEnd('\')
     $sysRoot = $env:SystemRoot.TrimEnd('\')
     if ($t -ieq $sysRoot -or $t.StartsWith($sysRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
-        $r.Msg = 'Папку Windows сжимать нельзя — система может перестать загружаться.'
+        $r.Msg = T 'Папку Windows сжимать нельзя — система может перестать загружаться.'
         return $r
     }
     if ($t -ieq $env:SystemDrive) {
-        $r.Msg = 'Корень системного диска сжимать нельзя (там Windows). Выбери конкретную папку с игрой или программой.'
+        $r.Msg = T 'Корень системного диска сжимать нельзя (там Windows). Выбери конкретную папку с игрой или программой.'
         return $r
     }
     if ($t.Length -le 2) {
-        $r.Warn = "Выбран корень диска $t — будет сжато вообще всё на нём. Продолжить?"
+        $r.Warn = (T 'Выбран корень диска {0} — будет сжато вообще всё на нём. Продолжить?') -f $t
     } else {
         foreach ($d in @($env:ProgramFiles, ${env:ProgramFiles(x86)}, $env:ProgramData, $env:USERPROFILE)) {
             if ($d -and ($t -ieq $d.TrimEnd('\'))) {
-                $r.Warn = "Это системная папка ($t): там много файлов, которые постоянно используются. Лучше выбрать конкретную подпапку. Всё равно продолжить?"
+                $r.Warn = (T 'Это системная папка ({0}): там много файлов, которые постоянно используются. Лучше выбрать конкретную подпапку. Всё равно продолжить?') -f $t
             }
         }
     }
@@ -993,8 +1119,8 @@ function Set-Running([bool]$on) {
     $chkForce.Enabled = -not $on
     $chkMedia.Enabled = -not $on
     if (-not $on) {
-        $btnPause.Text = 'Пауза'
-        $btnStop.Text = 'Стоп'
+        $btnPause.Text = T 'Пауза'
+        $btnStop.Text = T 'Стоп'
         $form.Text = "Zipper $($script:Version) — Compact OS"
     }
 }
@@ -1018,9 +1144,9 @@ function Start-Zipper([bool]$decompress, [bool]$analyze) {
     $engine.Force = $chkForce.Checked
     $engine.SkipMedia = $chkMedia.Checked
     Update-Load
-    if ($analyze) { $script:modeText = 'Анализ' }
-    elseif ($decompress) { $script:modeText = 'Расжатие' }
-    else { $script:modeText = 'Сжатие ' + $names[$cmbAlg.SelectedIndex] }
+    if ($analyze) { $script:modeText = T 'Анализ' }
+    elseif ($decompress) { $script:modeText = T 'Расжатие' }
+    else { $script:modeText = (T 'Сжатие ') + $names[$cmbAlg.SelectedIndex] }
     Add-Log ('— {0}: {1}' -f $script:modeText, $p) $cAccent
     $script:speed = 0.0
     $script:prevBytes = 0
@@ -1037,15 +1163,15 @@ function Show-StateSummary([int]$st) {
         $disk = [double]$engine.AllDisk
         $ratio = 0.0
         if ($all -gt 0) { $ratio = [Math]::Max(0.0, 100.0 * (1.0 - $disk / $all)) }
-        Add-Log ('Файлов: {0:N0}, объём {1}, на диске {2} (уже сэкономлено {3:N0}%)' -f $engine.AllFiles, (Fmt-Bytes $all), (Fmt-Bytes $disk), $ratio) $cText
-        Add-Log ('Можно сжать: {0:N0} файлов, {1}' -f $engine.SelFiles, (Fmt-Bytes $engine.SelBytes)) $cGreen
-        $lblStat1.Text = 'Анализ завершён.'
+        Add-Log ((T 'Файлов: {0:N0}, объём {1}, на диске {2} (уже сэкономлено {3:N0}%)') -f $engine.AllFiles, (Fmt-Bytes $all), (Fmt-Bytes $disk), $ratio) $cText
+        Add-Log ((T 'Можно сжать: {0:N0} файлов, {1}') -f $engine.SelFiles, (Fmt-Bytes $engine.SelBytes)) $cGreen
+        $lblStat1.Text = T 'Анализ завершён.'
         $lblStat2.Text = ''
         Set-Bar $barMain 0
     } elseif ($st -eq 3) {
         if ($engine.SelFiles -eq 0) {
-            Add-Log 'Нечего делать: подходящих файлов нет (всё уже обработано или файлы слишком мелкие / исключены).' $cYellow
-            $lblStat1.Text = 'Нечего делать.'
+            Add-Log (T 'Нечего делать: подходящих файлов нет (всё уже обработано или файлы слишком мелкие / исключены).') $cYellow
+            $lblStat1.Text = T 'Нечего делать.'
             Set-Bar $barMain 0
         } else {
             $saved = [double]$engine.DiskDelta
@@ -1053,20 +1179,20 @@ function Show-StateSummary([int]$st) {
             if ($engine.SelDisk -gt 0) { $pct = 100.0 * $saved / [double]$engine.SelDisk }
             $time = Fmt-Time ($engine.ElapsedMs / 1000.0)
             if ($engine.Decompress) {
-                Add-Log ('Готово за {0}. Занято дополнительно: {1}. OK: {2:N0}, ошибок: {3:N0}' -f $time, (Fmt-Bytes ([Math]::Abs($saved))), $engine.OkCount, $engine.ErrCount) $cGreen
+                Add-Log ((T 'Готово за {0}. Занято дополнительно: {1}. OK: {2:N0}, ошибок: {3:N0}') -f $time, (Fmt-Bytes ([Math]::Abs($saved))), $engine.OkCount, $engine.ErrCount) $cGreen
             } else {
-                Add-Log ('Готово за {0}. Освобождено: {1} ({2:N1}%). OK: {3:N0}, ошибок: {4:N0}' -f $time, (Fmt-Bytes $saved), $pct, $engine.OkCount, $engine.ErrCount) $cGreen
+                Add-Log ((T 'Готово за {0}. Освобождено: {1} ({2:N1}%). OK: {3:N0}, ошибок: {4:N0}') -f $time, (Fmt-Bytes $saved), $pct, $engine.OkCount, $engine.ErrCount) $cGreen
             }
-            $lblStat1.Text = 'Готово.'
+            $lblStat1.Text = T 'Готово.'
             Set-Bar $barMain 1
             try { [System.Media.SystemSounds]::Asterisk.Play() } catch {}
         }
     } elseif ($st -eq 4) {
-        Add-Log ('Остановлено. Обработано файлов: {0:N0} из {1:N0}.' -f $engine.DoneFiles, $engine.SelFiles) $cYellow
-        $lblStat1.Text = 'Остановлено.'
+        Add-Log ((T 'Остановлено. Обработано файлов: {0:N0} из {1:N0}.') -f $engine.DoneFiles, $engine.SelFiles) $cYellow
+        $lblStat1.Text = T 'Остановлено.'
     } elseif ($st -eq 6) {
-        Add-Log ('Ошибка: ' + $engine.LastError) $cRed
-        $lblStat1.Text = 'Ошибка.'
+        Add-Log ((T 'Ошибка: ') + $engine.LastError) $cRed
+        $lblStat1.Text = T 'Ошибка.'
     }
 }
 
@@ -1101,7 +1227,7 @@ function Update-UI {
     }
 
     if ($st -eq 1) {
-        $lblStat1.Text = 'Сканирование… файлов: {0:N0}' -f $engine.Scanned
+        $lblStat1.Text = (T 'Сканирование… файлов: {0:N0}') -f $engine.Scanned
     } elseif ($st -eq 2) {
         $tot = [double]$engine.SelBytes
         $done = [double]$engine.DoneBytes
@@ -1120,10 +1246,10 @@ function Update-UI {
         $eta = [double]::PositiveInfinity
         if ($script:speed -gt 1024) { $eta = ($tot - $done) / $script:speed }
         $state = ''
-        if ($engine.Paused) { $state = '   [ПАУЗА]' }
-        $lblStat1.Text = ('Файлов: {0:N0} / {1:N0}    Данные: {2} / {3}    Скорость: {4}/с    Осталось: {5}{6}' -f $engine.DoneFiles, $engine.SelFiles, (Fmt-Bytes $done), (Fmt-Bytes $tot), (Fmt-Bytes $script:speed), (Fmt-Time $eta), $state)
+        if ($engine.Paused) { $state = T '   [ПАУЗА]' }
+        $lblStat1.Text = ((T 'Файлов: {0:N0} / {1:N0}    Данные: {2} / {3}    Скорость: {4}/с    Осталось: {5}{6}') -f $engine.DoneFiles, $engine.SelFiles, (Fmt-Bytes $done), (Fmt-Bytes $tot), (Fmt-Bytes $script:speed), (Fmt-Time $eta), $state)
         $saved = [double]$engine.DiskDelta
-        $lblStat2.Text = ('OK: {0:N0}    Ошибок: {1:N0}    Освобождено на диске: {2}' -f $engine.OkCount, $engine.ErrCount, (Fmt-Bytes $saved))
+        $lblStat2.Text = ((T 'OK: {0:N0}    Ошибок: {1:N0}    Освобождено на диске: {2}') -f $engine.OkCount, $engine.ErrCount, (Fmt-Bytes $saved))
         $form.Text = ('{0:N0}% — Zipper {1}' -f ($r * 100), $script:Version)
     }
 }
@@ -1131,7 +1257,7 @@ function Update-UI {
 # ---------------------------------------------------------------- события
 $btnBrowse.Add_Click({
     $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
-    $dlg.Description = 'Выбери папку для сжатия'
+    $dlg.Description = T 'Выбери папку для сжатия'
     $dlg.ShowNewFolderButton = $false
     if ($txtPath.Text -and (Test-Path -LiteralPath $txtPath.Text.Trim().Trim('"') -PathType Container)) { $dlg.SelectedPath = $txtPath.Text.Trim().Trim('"') }
     if ($dlg.ShowDialog() -eq 'OK') { $txtPath.Text = $dlg.SelectedPath; Update-DriveInfo }
@@ -1160,18 +1286,23 @@ $btnAnalyze.Add_Click({ Start-Zipper $false $true })
 
 $btnPause.Add_Click({
     $engine.Paused = -not $engine.Paused
-    if ($engine.Paused) { $btnPause.Text = 'Продолжить' } else { $btnPause.Text = 'Пауза' }
+    if ($engine.Paused) { $btnPause.Text = T 'Продолжить' } else { $btnPause.Text = 'Пауза' }
 })
 $btnStop.Add_Click({
     if (-not $engine.Busy) { return }
     $engine.Stop()
     if ($engine.StopCount -ge 2) {
-        Add-Log 'Прервано принудительно.' $cYellow
+        Add-Log (T 'Прервано принудительно.') $cYellow
     } else {
-        $btnStop.Text = 'Прервать'
-        Add-Log 'Останавливаю: дожидаюсь завершения текущих файлов… Повторное нажатие прервёт сразу.' $cYellow
+        $btnStop.Text = T 'Прервать'
+        Add-Log (T 'Останавливаю: дожидаюсь завершения текущих файлов… Повторное нажатие прервёт сразу.') $cYellow
     }
 })
+$cmbLanguage.Add_SelectedIndexChanged({
+    if ($script:languageChanging) { return }
+    if ($cmbLanguage.SelectedIndex -eq 1) { Apply-Language 'en' } else { Apply-Language 'ru' }
+})
+
 $btnLogOpen.Add_Click({
     try {
         if (Test-Path -LiteralPath $script:logFile) { Start-Process explorer.exe -ArgumentList ('/select,"{0}"' -f $script:logFile) }
@@ -1187,14 +1318,14 @@ $form.Add_Shown({
 $form.Add_FormClosing({
     param($sender, $e)
     if ($engine.Busy) {
-        $ans = [System.Windows.Forms.MessageBox]::Show('Идёт работа. Прервать и выйти?', 'Zipper', 'YesNo', 'Question')
+        $ans = [System.Windows.Forms.MessageBox]::Show((T 'Идёт работа. Прервать и выйти?'), 'Zipper', 'YesNo', 'Question')
         if ($ans -ne 'Yes') { $e.Cancel = $true; return }
         $engine.Stop(); $engine.Stop()
     }
     try {
         $o = [ordered]@{
             threads = $tbThreads.Value; cpu = $cmbCpu.SelectedIndex; io = $cmbIo.SelectedIndex; load = $tbLoad.Value
-            alg = $cmbAlg.SelectedIndex; force = $chkForce.Checked; media = $chkMedia.Checked; path = $txtPath.Text
+            alg = $cmbAlg.SelectedIndex; force = $chkForce.Checked; media = $chkMedia.Checked; path = $txtPath.Text; language = $script:language
         }
         ($o | ConvertTo-Json) | Set-Content -LiteralPath $script:settingsFile -Encoding UTF8
     } catch {}
@@ -1232,6 +1363,7 @@ if ($env:ZIPPER_ARG) {
         $txtPath.Text = $a
     }
 }
+Apply-Language $script:language
 Update-Load
 Update-DriveInfo
 
