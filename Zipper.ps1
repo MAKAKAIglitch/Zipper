@@ -1,4 +1,4 @@
-<#
+﻿<#
     Zipper v1.2 — графическая оболочка для Windows Compact OS (compact.exe /exe)
     Запускай через Zipper.bat (он сам просит права администратора).
 #>
